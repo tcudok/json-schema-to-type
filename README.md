@@ -20,7 +20,7 @@ import {
   asJsonSchema,
 } from 'json-schema-to-instance-type';
 
-// `asJsonSchema` cast the type to `JsonSchema` type without erasing the granular type information.
+// `asJsonSchema` casts the type to `JsonSchema` type without erasing the granular type information.
 // Shouldn't be needed when `const` assertions land in TS 3.4: https://github.com/Microsoft/TypeScript/pull/29510
 const schema = asJsonSchema({
   type: 'object',
