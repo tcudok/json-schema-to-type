@@ -1,12 +1,21 @@
+import {
+  StringSchema,
+  NumberSchema,
+  IntegerSchema,
+  BooleanSchema,
+  ObjectSchema,
+  ArraySchema,
+  NullSchema,
+  SchemaProperties,
+  SchemaArray,
+} from './schemas';
+
 export const jsonSchema = <
   T extends Schema<TProps>,
   TProps extends SchemaProperties
 >(
   x: T,
 ): T => x;
-
-// https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
-export interface SchemaArray extends Array<Schema> {}
 
 export type Schema<
   TProps extends SchemaProperties = SchemaProperties,
@@ -36,9 +45,9 @@ export type MultiTypeSchema<
   type: T[];
   default?: SingleTypeSchemaTypeToType<T>;
   examples?: SingleTypeSchemaTypeToType<T>;
-} & UnionToIntersection<StripType<TypeNameToSchema<T>>>;
+} & UnionToIntersection<StripTypeSpecificProperties<SingleTypeNameToSchema<T>>>;
 
-type StripType<T> = T extends SingleTypeSchema
+type StripTypeSpecificProperties<T> = T extends SingleTypeSchema
   ? Pick<T, Exclude<keyof T, 'type' | 'default' | 'examples'>>
   : never;
 
@@ -48,152 +57,6 @@ type UnionToIntersection<U> = (U extends any
   : never) extends ((k: infer I) => void)
   ? I
   : never;
-
-type TypeNameToSchema<T extends SingleTypeSchema['type']> = T extends 'string'
-  ? StringSchema
-  : T extends 'number'
-  ? NumberSchema
-  : T extends 'boolean'
-  ? BooleanSchema
-  : never;
-
-type SchemaCommon = {
-  $id?: string;
-  $ref?: string;
-  $schema?: string;
-  $comment?: string;
-  //
-  // type?: JSONSchema7TypeName | JSONSchema7TypeName[];
-  // enum?: JSONSchema7Type[];
-  // const?: JSONSchema7Type;
-
-  // Schema annotations https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-10
-  title?: string;
-  description?: string;
-  readOnly?: boolean;
-  writeOnly?: boolean;
-
-  /**
-   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.6
-   */
-  // if?: JSONSchema7Definition;
-  // then?: JSONSchema7Definition;
-  // else?: JSONSchema7Definition;
-
-  /**
-   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.7
-   */
-  // allOf?: JSONSchema7Definition[];
-  // anyOf?: JSONSchema7Definition[];
-  // oneOf?: JSONSchema7Definition[];
-  // not?: JSONSchema7Definition;
-
-  /**
-   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7
-   */
-  format?: string;
-
-  /**
-   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-8
-   */
-  contentMediaType?: string;
-  contentEncoding?: string;
-
-  /**
-   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-9
-   */
-  // definitions?: {
-  //   [key: string]: JSONSchema7Definition;
-  // };
-};
-
-type StringSchema = SchemaCommon & {
-  type: 'string';
-  default?: string;
-  examples?: string;
-
-  maxLength?: number;
-  minLength?: number;
-  pattern?: string;
-};
-
-type NumberSchema = SchemaCommon & {
-  type: 'number';
-  default?: number;
-  examples?: number;
-
-  multipleOf?: number;
-  maximum?: number;
-  exclusiveMaximum?: number;
-  minimum?: number;
-  exclusiveMinimum?: number;
-};
-
-type IntegerSchema = SchemaCommon & {
-  type: 'integer';
-  default?: number;
-  examples?: number;
-
-  multipleOf?: number;
-  maximum?: number;
-  exclusiveMaximum?: number;
-  minimum?: number;
-  exclusiveMinimum?: number;
-};
-
-type BooleanSchema = SchemaCommon & {
-  type: 'boolean';
-  default?: boolean;
-  examples?: boolean;
-};
-
-// https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.4
-type ArraySchema<TItems extends SchemaArray = SchemaArray> = SchemaCommon & {
-  type: 'array';
-  default?: TItems;
-  examples?: TItems;
-
-  items?: TItems; // TODO: allow single Schema if all items are of the same type
-
-  // additionalItems?: JSONSchema7Definition;
-  maxItems?: number;
-  minItems?: number;
-  uniqueItems?: boolean;
-  // contains?: JSONSchema7;
-};
-
-// https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.5
-type ObjectSchema<
-  TProps extends SchemaProperties = SchemaProperties
-> = SchemaCommon & {
-  type: 'object';
-  properties: TProps;
-  required?: (keyof TProps)[];
-  default?: {};
-  examples?: {};
-
-  maxProperties?: number;
-  minProperties?: number;
-  // properties?: {
-  //   [key: string]: JSONSchema7Definition;
-  // };
-  // patternProperties?: {
-  //   [key: string]: JSONSchema7Definition;
-  // };
-  // additionalProperties?: JSONSchema7Definition;
-  // dependencies?: {
-  //   [key: string]: JSONSchema7Definition | string[];
-  // };
-  // propertyNames?: JSONSchema7Definition;
-};
-
-type NullSchema = {
-  type: 'null';
-};
-
-export type SchemaProperties = {
-  [key: string]: Schema;
-};
 
 export type SchemaToType<T extends Schema> = T extends MultiTypeSchema
   ? SingleTypeSchemaTypeToType<MultiTypeSchemaTypeNames<T>>
@@ -205,14 +68,40 @@ type MultiTypeSchemaTypeNames<T> = T extends MultiTypeSchema<infer Types>
   ? Types
   : never;
 
+type SingleTypeNameToSchema<
+  T extends SingleTypeSchema['type']
+> = T extends 'string'
+  ? StringSchema
+  : T extends 'number'
+  ? NumberSchema
+  : T extends 'integer'
+  ? IntegerSchema
+  : T extends 'boolean'
+  ? BooleanSchema
+  : T extends 'object'
+  ? ObjectSchema<any>
+  : T extends 'array'
+  ? ArraySchema<any>
+  : T extends 'null'
+  ? NullSchema
+  : never;
+
 type SingleTypeSchemaTypeToType<
   T extends SingleTypeSchema['type']
 > = T extends 'string'
   ? string
   : T extends 'number'
   ? number
+  : T extends 'integer'
+  ? number
   : T extends 'boolean'
   ? boolean
+  : T extends 'object'
+  ? object
+  : T extends 'array'
+  ? []
+  : T extends 'null'
+  ? null
   : never;
 
 type SingleTypeSchemaToType<T> = T extends ObjectSchema<any>
