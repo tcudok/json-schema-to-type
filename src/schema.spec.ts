@@ -1,25 +1,31 @@
 import { assert, IsExactType } from 'conditional-type-checks';
-import { jsonSchema, SchemaToType, Schema, MultiTypeSchema } from '.';
+import {
+  JsonSchemaToInstanceType,
+  JsonSchema,
+  MultiTypeSchema,
+} from './schema';
 import Ajv, { ErrorObject } from 'ajv';
+import { SchemaProperties } from './schemas';
+import { asJsonSchema } from './helpers';
 
 it('compiles with simple schemas', () => {
-  const schema = jsonSchema({
+  const schema = asJsonSchema({
     type: 'string',
     default: 'test',
   });
 
-  const t = (i: Schema) => {};
+  type Data = JsonSchemaToInstanceType<typeof schema>;
 
-  t(schema);
+  assert<IsExactType<Data, string>>(true);
 });
 
 it('compiles with multi-type schemas', () => {
-  const schema: MultiTypeSchema<'string' | 'number'> = {
-    type: ['string', 'number'],
+  const schema = {
+    type: ['string', 'number'] as ['string', 'number'],
     default: 'test',
   };
 
-  type Data = SchemaToType<typeof schema>;
+  type Data = JsonSchemaToInstanceType<typeof schema>;
 
   assert<IsExactType<Data, string | number>>(true);
 });
@@ -30,13 +36,13 @@ it('compiles with multi-type schemas when one of the types is object', () => {
     default: 'test',
   };
 
-  type Data = SchemaToType<typeof schema>;
+  type Data = JsonSchemaToInstanceType<typeof schema>;
 
   assert<IsExactType<Data, string | object>>(true);
 });
 
 it('compiles with object schemas', () => {
-  const schema = jsonSchema({
+  const schema = asJsonSchema({
     type: 'object',
     properties: {
       firstName: {
@@ -52,15 +58,15 @@ it('compiles with object schemas', () => {
     required: ['firstName', 'lastName'],
   });
 
-  type Data = SchemaToType<typeof schema>;
+  type Data = JsonSchemaToInstanceType<typeof schema>;
 
   assert<
     IsExactType<Data, { firstName: string; lastName: string; age?: number }>
   >(true);
 });
 
-it('it compiles with nested object schemas', () => {
-  const schema2 = jsonSchema({
+it('compiles with nested object schemas', () => {
+  const schema = asJsonSchema({
     type: 'object',
     properties: {
       port: {
@@ -80,13 +86,13 @@ it('it compiles with nested object schemas', () => {
     required: ['port'],
   });
 
-  type Data2 = SchemaToType<typeof schema2>;
+  type Data = JsonSchemaToInstanceType<typeof schema>;
 
-  assert<IsExactType<Data2, { port: number; static?: { from: string } }>>(true);
+  assert<IsExactType<Data, { port: number; static?: { from: string } }>>(true);
 });
 
 it('works with AJV', () => {
-  const schema = jsonSchema({
+  const schema = asJsonSchema({
     type: 'object',
     properties: {
       foo: {
@@ -106,7 +112,7 @@ it('works with AJV', () => {
     },
   });
 
-  type Data = SchemaToType<typeof schema>;
+  type Data = JsonSchemaToInstanceType<typeof schema>;
 
   assert<IsExactType<Data, { foo: string; bar: { baz: number } }>>(true);
 
@@ -122,11 +128,11 @@ it('works with AJV', () => {
   }
 });
 
-type ValidationResult<T extends Schema> =
-  | { success: true; data: SchemaToType<T> }
+type ValidationResult<T extends JsonSchema> =
+  | { success: true; data: JsonSchemaToInstanceType<T> }
   | { success: false; errors: ErrorObject[] };
 
-function validate<T extends Schema>(
+function validate<T extends JsonSchema>(
   schema: T,
   data: unknown,
 ): ValidationResult<T> {
@@ -138,5 +144,5 @@ function validate<T extends Schema>(
     return { success: false, errors: validate.errors! };
   }
 
-  return { success: true, data: data as SchemaToType<T> };
+  return { success: true, data: data as JsonSchemaToInstanceType<T> };
 }

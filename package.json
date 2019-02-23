@@ -1,16 +1,21 @@
 {
-  "name": "typed-schema",
-  "version": "1.0.0",
+  "name": "json-schema-to-instance-type",
+  "version": "0.1.0",
   "license": "MIT",
-  "scripts": {
-    "test": "jest"
+  "author": {
+    "name": "Tomasz Cudok",
+    "email": "tcudok@gmail.com"
   },
-  "dependencies": {
-    "conditional-type-checks": "^0.6.0"
+  "main": "dist",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "prepublish": "yarn build"
   },
   "devDependencies": {
     "@types/jest": "^24.0.6",
     "ajv": "^6.9.2",
+    "conditional-type-checks": "^0.6.0",
     "jest": "^24.1.0",
     "ts-jest": "^24.0.0",
     "typescript": "^3.3.3333"

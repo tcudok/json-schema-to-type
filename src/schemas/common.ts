@@ -3,26 +3,26 @@ export type SchemaCommon = {
   $ref?: string;
   $schema?: string;
   $comment?: string;
-  //
-  // enum?: Schema[];
-  // const?: Schema;
 
-  // Schema annotations https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-10
+  // enum?: JsonSchema[];
+  // const?: JsonSchema;
+
+  // https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-10
   title?: string;
   description?: string;
   readOnly?: boolean;
   writeOnly?: boolean;
 
   // https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.6
-  // if?: Schema;
-  // then?: Schema;
-  // else?: Schema;
+  // if?: JsonSchema;
+  // then?: JsonSchema;
+  // else?: JsonSchema;
 
   // https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.7
-  // allOf?: Schema[];
-  // anyOf?: Schema[];
-  // oneOf?: Schema[];
-  // not?: Schema;
+  // allOf?: JsonSchema[];
+  // anyOf?: JsonSchema[];
+  // oneOf?: JsonSchema[];
+  // not?: JsonSchema;
 
   // https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7
   format?: string;
@@ -33,6 +33,6 @@ export type SchemaCommon = {
 
   // https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-9
   // definitions?: {
-  //   [key: string]: Schema;
+  //   [key: string]: JsonSchema;
   // };
 };
