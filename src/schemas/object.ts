@@ -1,5 +1,6 @@
 import { SchemaCommon } from './common';
 import { Schema } from '..';
+import { StringSchema } from './string';
 
 // https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.5
 export type ObjectSchema<
@@ -13,17 +14,15 @@ export type ObjectSchema<
 
   maxProperties?: number;
   minProperties?: number;
-  // properties?: {
-  //   [key: string]: JSONSchema7Definition;
-  // };
+
   // patternProperties?: {
-  //   [key: string]: JSONSchema7Definition;
+  //   [key: string]: Schema;
   // };
-  // additionalProperties?: JSONSchema7Definition;
+  additionalProperties?: boolean; // TODO: Schema | boolean;
   // dependencies?: {
-  //   [key: string]: JSONSchema7Definition | string[];
+  //   [key: string]: Schema | string[];
   // };
-  // propertyNames?: JSONSchema7Definition;
+  propertyNames?: StringSchema; // TODO: make type property optional, as it it implied here
 };
 
 export type SchemaProperties = {

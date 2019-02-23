@@ -24,6 +24,17 @@ it('compiles with multi-type schemas', () => {
   assert<IsExactType<Data, string | number>>(true);
 });
 
+it('compiles with multi-type schemas when one of the types is object', () => {
+  const schema: MultiTypeSchema<'string' | 'object'> = {
+    type: ['string', 'object'],
+    default: 'test',
+  };
+
+  type Data = SchemaToType<typeof schema>;
+
+  assert<IsExactType<Data, string | object>>(true);
+});
+
 it('compiles with object schemas', () => {
   const schema = jsonSchema({
     type: 'object',

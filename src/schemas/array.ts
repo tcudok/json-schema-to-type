@@ -11,11 +11,11 @@ export type ArraySchema<
 
   items?: TItems; // TODO: allow single Schema if all items are of the same type
 
-  // additionalItems?: JSONSchema7Definition;
+  additionalItems?: boolean; // Schema | boolean;
   maxItems?: number;
   minItems?: number;
   uniqueItems?: boolean;
-  // contains?: JSONSchema7;
+  // contains?: Schema;
 };
 
 // https://github.com/Microsoft/TypeScript/issues/3496#issuecomment-128553540
