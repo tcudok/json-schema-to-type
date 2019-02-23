@@ -1,5 +1,5 @@
 import { assert, IsExactType } from 'conditional-type-checks';
-import { jsonSchema, JsonSchemaType, Schema } from '.';
+import { jsonSchema, SchemaToType, Schema, MultiTypeSchema } from '.';
 import Ajv, { ErrorObject } from 'ajv';
 
 it('compiles with simple schemas', () => {
@@ -11,6 +11,17 @@ it('compiles with simple schemas', () => {
   const t = (i: Schema) => {};
 
   t(schema);
+});
+
+it('compiles with multi-type schemas', () => {
+  const schema: MultiTypeSchema<'string' | 'number'> = {
+    type: ['string', 'number'],
+    default: 'test',
+  };
+
+  type Data = SchemaToType<typeof schema>;
+
+  assert<IsExactType<Data, string | number>>(true);
 });
 
 it('compiles with object schemas', () => {
@@ -30,7 +41,7 @@ it('compiles with object schemas', () => {
     required: ['firstName', 'lastName'],
   });
 
-  type Data = JsonSchemaType<typeof schema>;
+  type Data = SchemaToType<typeof schema>;
 
   assert<
     IsExactType<Data, { firstName: string; lastName: string; age?: number }>
@@ -58,7 +69,7 @@ it('it compiles with nested object schemas', () => {
     required: ['port'],
   });
 
-  type Data2 = JsonSchemaType<typeof schema2>;
+  type Data2 = SchemaToType<typeof schema2>;
 
   assert<IsExactType<Data2, { port: number; static?: { from: string } }>>(true);
 });
@@ -84,7 +95,7 @@ it('works with AJV', () => {
     },
   });
 
-  type Data = JsonSchemaType<typeof schema>;
+  type Data = SchemaToType<typeof schema>;
 
   assert<IsExactType<Data, { foo: string; bar: { baz: number } }>>(true);
 
@@ -101,7 +112,7 @@ it('works with AJV', () => {
 });
 
 type ValidationResult<T extends Schema> =
-  | { success: true; data: JsonSchemaType<T> }
+  | { success: true; data: SchemaToType<T> }
   | { success: false; errors: ErrorObject[] };
 
 function validate<T extends Schema>(
@@ -116,5 +127,5 @@ function validate<T extends Schema>(
     return { success: false, errors: validate.errors! };
   }
 
-  return { success: true, data: data as JsonSchemaType<T> };
+  return { success: true, data: data as SchemaToType<T> };
 }
