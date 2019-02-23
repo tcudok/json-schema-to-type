@@ -9,8 +9,8 @@ export type ObjectSchema<
   type: 'object';
   properties?: TProps;
   required?: (keyof TProps)[];
-  default?: {};
-  examples?: {};
+  default?: object; // TODO: get actual type
+  examples?: object[]; // TODO: get actual type
 
   maxProperties?: number;
   minProperties?: number;
@@ -22,7 +22,7 @@ export type ObjectSchema<
   // dependencies?: {
   //   [key: string]: Schema | string[];
   // };
-  propertyNames?: StringSchema; // TODO: make type property optional, as it it implied here
+  propertyNames?: StringSchema; // TODO: make the "type" property optional, as it it implied here
 };
 
 export type SchemaProperties = {
