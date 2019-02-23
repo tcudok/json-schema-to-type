@@ -50,7 +50,9 @@ type ApplyRequired<T, TDef> = TDef extends ObjectSchema
 type RequiredProperties<TDef extends ObjectSchema<any>> = {
   [P in keyof TDef['properties']]: P extends ArrayElement<TDef['required']>
     ? P
-    : never
+    : undefined extends TDef['properties'][P]['default']
+    ? never
+    : P
 }[keyof TDef['properties']];
 
 type ArrayElement<ArrayType> = ArrayType extends (infer ElementType)[]
