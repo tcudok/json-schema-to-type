@@ -1,69 +1,53 @@
 export const jsonSchema = <
-  T extends Schema<TTypeName, TProps>,
-  TTypeName extends SchemaTypeName,
+  T extends Schema<TProps>,
   TProps extends SchemaProperties
 >(
   x: T,
-) => x;
+): T => x;
 
-export type Schema<
-  TTypeName extends SchemaTypeName = SchemaTypeName,
-  TProperties extends SchemaProperties = SchemaProperties
-> = {
-  type?: TTypeName;
-  description?: string;
-  properties?: TProperties;
-  required?: (keyof TProperties)[];
-  default?: DefaultType<TTypeName>;
+export type Schema<TProps extends SchemaProperties = SchemaProperties> =
+  | StringSchema
+  | NumberSchema
+  | ObjectSchema<TProps>;
+
+type StringSchema = {
+  type: 'string';
+  default?: string;
 };
 
-export type SchemaType = object | string | number | boolean;
+type NumberSchema = {
+  type: 'number';
+  default?: number;
+};
 
-export type SchemaTypeName =
-  | 'object'
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'boolean'
-  | 'array' // TODO: mapping
-  | 'null'; // TODO: mapping
+type ObjectSchema<TProps extends SchemaProperties = SchemaProperties> = {
+  type: 'object';
+  properties: TProps;
+  required?: (keyof TProps)[];
+  default?: {};
+};
 
 export type SchemaProperties = {
   [key: string]: Schema;
 };
 
-export type JsonSchemaType<T extends Schema> = MarkOptionalProperties<
-  { [K in keyof T['properties']]: PropertyType<T['properties'][K]> },
-  T
->;
-
-type DefaultType<T extends SchemaTypeName> = T extends 'object'
-  ? {}
-  : T extends 'string'
+export type JsonSchemaType<T extends Schema> = T extends ObjectSchema<any>
+  ? ApplyRequired<
+      { [K in keyof T['properties']]: JsonSchemaType<T['properties'][K]> },
+      T
+    >
+  : T extends StringSchema
   ? string
-  : T extends 'integer' | 'number'
+  : T extends NumberSchema
   ? number
-  : T extends 'boolean'
-  ? boolean
   : never;
 
-type PropertyType<T extends Schema> = T['type'] extends 'object'
-  ? JsonSchemaType<T>
-  : T['type'] extends 'string'
-  ? string
-  : T['type'] extends 'integer' | 'number'
-  ? number
-  : T['type'] extends 'boolean'
-  ? boolean
-  : never;
+type ApplyRequired<T, TDef> = TDef extends ObjectSchema
+  ? Pick<T, Extract<keyof T, RequiredProperties<TDef>>> &
+      Partial<Pick<T, Exclude<keyof T, RequiredProperties<TDef>>>>
+  : T;
 
-type MarkOptionalProperties<
-  T extends JsonSchemaType<TDef>,
-  TDef extends Schema
-> = Pick<T, Extract<keyof T, RequiredProperties<TDef>>> &
-  Partial<Pick<T, Exclude<keyof T, RequiredProperties<TDef>>>>;
-
-type RequiredProperties<TDef extends Schema> = {
+type RequiredProperties<TDef extends ObjectSchema<any>> = {
   [P in keyof TDef['properties']]: P extends ArrayElement<TDef['required']>
     ? P
     : never
