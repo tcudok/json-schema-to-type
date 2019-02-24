@@ -6,6 +6,11 @@
     "name": "Tomasz Cudok",
     "email": "tcudok@gmail.com"
   },
+  "keywords": [
+    "typescript",
+    "json-schema"
+  ],
+  "repository": "github:tcudok/json-schema-to-type",
   "main": "dist",
   "scripts": {
     "test": "jest",

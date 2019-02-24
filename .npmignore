@@ -4,3 +4,5 @@ node_modules
 jest.config.js
 tsconfig.js
 yarn.lock
+dist/*.spec.js
+dist/*.map
