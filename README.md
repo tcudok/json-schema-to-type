@@ -73,6 +73,6 @@ The support for many JSON Schema features is still missing. Things to implement:
   - [ ] full support for `object` schemas in multi-type schemas (currently resolves to object)
 - [ ] `enum` property
 - [ ] `const` property
-- [ ] `definitions` property (investiate `$ref` support)
+- [ ] `definitions` property (investigate `$ref` support)
 - [ ] `if`, `then`, `else` properties
 - [ ] `allOf`, `anyOf`, `oneOf`, `not` properties
