@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/json-schema-to-type.svg)](https://badge.fury.io/js/json-schema-to-type)
+
 # json-schema-to-type
 
 A compile-time TypeScript library that can generate the type of a JSON instance from a JSON Schema object type.
