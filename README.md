@@ -34,13 +34,30 @@ const schema = asJsonSchema({
       type: 'string',
     },
     age: {
-      type: 'number',
+      type: 'integer',
+    },
+    address: {
+      type: 'object',
+      properties: {
+        addressLine1: {
+          type: 'string',
+        },
+        addressLine2: {
+          type: 'string',
+        },
+        postCode: {
+          type: 'string',
+        },
+      },
+      required: ['addressLine1', 'postCode'],
+    },
+    phoneNumbers: {
+      type: 'array',
+      items: { type: ['string', 'integer'] },
     },
   },
-  required: ['firstName', 'lastName'],
+  required: ['firstName', 'lastName', 'phoneNumbers'],
 });
-
-type Type = JsonSchemaToType<typeof schema>;
 ```
 
 The resulting type of `Type` will be equivalent to:
@@ -50,6 +67,12 @@ type Type = {
   firstName: string;
   lastName: string;
   age?: number;
+  address?: {
+    addressLine1: string;
+    addressLine2?: string;
+    postCode: string;
+  };
+  phoneNumers: (string | number)[];
 };
 ```
 
