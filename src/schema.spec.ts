@@ -1,11 +1,7 @@
 import { assert, IsExactType } from 'conditional-type-checks';
-import {
-  JsonSchemaToInstanceType,
-  JsonSchema,
-  MultiTypeSchema,
-} from './schema';
+import { JsonSchema } from './schema';
+import { JsonSchemaToType, MultiTypeSchema } from './toType';
 import Ajv, { ErrorObject } from 'ajv';
-import { SchemaProperties } from './schemas';
 import { asJsonSchema } from './helpers';
 
 it('compiles with simple schemas', () => {
@@ -14,7 +10,7 @@ it('compiles with simple schemas', () => {
     default: 'test',
   });
 
-  type Data = JsonSchemaToInstanceType<typeof schema>;
+  type Data = JsonSchemaToType<typeof schema>;
 
   assert<IsExactType<Data, string>>(true);
 });
@@ -25,7 +21,7 @@ it('compiles with multi-type schemas', () => {
     default: 'test',
   };
 
-  type Data = JsonSchemaToInstanceType<typeof schema>;
+  type Data = JsonSchemaToType<typeof schema>;
 
   assert<IsExactType<Data, string | number>>(true);
 });
@@ -36,7 +32,7 @@ it('compiles with multi-type schemas when one of the types is object', () => {
     default: 'test',
   };
 
-  type Data = JsonSchemaToInstanceType<typeof schema>;
+  type Data = JsonSchemaToType<typeof schema>;
 
   assert<IsExactType<Data, string | object>>(true);
 });
@@ -52,13 +48,13 @@ it('compiles with object schemas', () => {
         type: 'string',
       },
       age: {
-        type: 'number',
+        type: 'integer',
       },
     },
     required: ['firstName', 'lastName'],
   });
 
-  type Data = JsonSchemaToInstanceType<typeof schema>;
+  type Data = JsonSchemaToType<typeof schema>;
 
   assert<
     IsExactType<Data, { firstName: string; lastName: string; age?: number }>
@@ -86,7 +82,7 @@ it('compiles with nested object schemas', () => {
     required: ['port'],
   });
 
-  type Data = JsonSchemaToInstanceType<typeof schema>;
+  type Data = JsonSchemaToType<typeof schema>;
 
   assert<IsExactType<Data, { port: number; static?: { from: string } }>>(true);
 });
@@ -107,14 +103,23 @@ it('works with AJV', () => {
             type: 'number',
             default: 5,
           },
+          qux: {
+            type: ['number', 'string'],
+            default: 'test',
+          },
         },
       },
     },
   });
 
-  type Data = JsonSchemaToInstanceType<typeof schema>;
+  type Data = JsonSchemaToType<typeof schema>;
 
-  assert<IsExactType<Data, { foo: string; bar: { baz: number } }>>(true);
+  assert<
+    IsExactType<
+      Data,
+      { foo: string; bar: { baz: number; qux: number | string } }
+    >
+  >(true);
 
   const data: any = {};
 
@@ -125,11 +130,12 @@ it('works with AJV', () => {
   if (result.success) {
     expect(result.data.foo).toBe('test');
     expect(result.data.bar.baz).toBe(5);
+    expect(result.data.bar.qux).toBe('test');
   }
 });
 
 type ValidationResult<T extends JsonSchema> =
-  | { success: true; data: JsonSchemaToInstanceType<T> }
+  | { success: true; data: JsonSchemaToType<T> }
   | { success: false; errors: ErrorObject[] };
 
 function validate<T extends JsonSchema>(
@@ -144,5 +150,5 @@ function validate<T extends JsonSchema>(
     return { success: false, errors: validate.errors! };
   }
 
-  return { success: true, data: data as JsonSchemaToInstanceType<T> };
+  return { success: true, data: data as JsonSchemaToType<T> };
 }

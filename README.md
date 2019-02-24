@@ -1,6 +1,6 @@
-# json-schema-to-instance-type
+# json-schema-to-type
 
-A compile-time TypeScript library that can generate the type of a JSON instance from a JSON Schema object.
+A compile-time TypeScript library that can generate the type of a JSON instance from a JSON Schema object type.
 
 ## Installation
 
@@ -15,10 +15,7 @@ yarn -D add typed-schema
 ## Usage
 
 ```typescript
-import {
-  JsonSchemaToInstanceType,
-  asJsonSchema,
-} from 'json-schema-to-instance-type';
+import { JsonSchemaToType, asJsonSchema } from 'json-schema-to-type';
 
 // `asJsonSchema` casts the type to `JsonSchema` type without erasing the granular type information.
 // Shouldn't be needed when `const` assertions land in TS 3.4: https://github.com/Microsoft/TypeScript/pull/29510
@@ -38,13 +35,13 @@ const schema = asJsonSchema({
   required: ['firstName', 'lastName'],
 });
 
-type Instance = JsonSchemaToInstanceType<typeof schema>;
+type Type = JsonSchemaToType<typeof schema>;
 ```
 
-The resulting type of `Instance` will be equivalent to:
+The resulting type of `Type` will be equivalent to:
 
 ```typescript
-type Instance = {
+type Type = {
   firstName: string;
   lastName: string;
   age?: number;

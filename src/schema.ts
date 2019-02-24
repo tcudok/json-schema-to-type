@@ -1,132 +1,141 @@
-import {
-  ArraySchema,
-  BooleanSchema,
-  IntegerSchema,
-  NullSchema,
-  NumberSchema,
-  ObjectSchema,
-  SchemaArray,
-  SchemaProperties,
-  StringSchema,
-} from './schemas';
+import { ArraySchemaItems, ObjectSchemaProperties } from './typeSchemas';
 
-export type JsonSchemaToInstanceType<
-  T extends JsonSchema
-> = T extends MultiTypeSchema
-  ? SingleTypeSchemaTypeToType<MultiTypeSchemaTypeNames<T>>
-  : T extends SingleTypeSchema
-  ? SingleTypeSchemaToType<T>
-  : never;
+export type JsonSchemaTypeName =
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'boolean'
+  | 'object'
+  | 'array'
+  | 'null';
 
-export type JsonSchema<
-  TProps extends SchemaProperties = SchemaProperties,
-  TItems extends SchemaArray = SchemaArray
-> =
-  | StringSchema
-  | NumberSchema
-  | IntegerSchema
-  | BooleanSchema
-  | ObjectSchema<TProps>
-  | ArraySchema<TItems>
-  | NullSchema
-  | MultiTypeSchema;
+export type JsonSchemaType =
+  | ArraySchemaItems[]
+  | boolean
+  | number
+  | null
+  | object
+  | string;
 
-type SingleTypeSchema =
-  | StringSchema
-  | NumberSchema
-  | IntegerSchema
-  | BooleanSchema
-  | ObjectSchema<any>
-  | ArraySchema<any>
-  | NullSchema;
+export interface JsonSchemaArray extends Array<JsonSchemaType> {}
 
-export type MultiTypeSchema<
-  T extends SingleTypeSchema['type'] = SingleTypeSchema['type']
-> = {
-  type: T[];
-  default?: SingleTypeSchemaTypeToType<T>;
-  examples?: SingleTypeSchemaTypeToType<T>;
-} & UnionToIntersection<StripTypeSpecificProperties<SingleTypeNameToSchema<T>>>;
+export type JsonSchemaVersion = string;
 
-type StripTypeSpecificProperties<T> = T extends SingleTypeSchema
-  ? Pick<T, Exclude<keyof T, 'type' | 'default' | 'examples'>>
-  : never;
+export type JsonSchemaDefinition = JsonSchema | boolean;
 
-// https://stackoverflow.com/a/50375286/1515409
-type UnionToIntersection<U> = (U extends any
-  ? (k: U) => void
-  : never) extends ((k: infer I) => void)
-  ? I
-  : never;
+// Based on https://github.com/DefinitelyTyped/DefinitelyTyped/blob/11d758a1193c3bd924f9f4b0b466f6e4d40d1a2f/types/json-schema/index.d.ts#L510,
+// with slight modifications to allow to capture the needed type information.
+export interface JsonSchema<
+  TObjectProperties extends ObjectSchemaProperties = ObjectSchemaProperties,
+  TArrayItems extends ArraySchemaItems = ArraySchemaItems
+> {
+  // TODO: type isn't strictly required, if it's not specified we can fallback to unknown
+  type: JsonSchemaTypeName | JsonSchemaTypeName[];
+  properties?: TObjectProperties;
+  required?: (keyof TObjectProperties)[];
 
-type MultiTypeSchemaTypeNames<T> = T extends MultiTypeSchema<infer Types>
-  ? Types
-  : never;
+  /*
+    Properties that don't affect the instance type, copied directly from @types/json-schema
 
-type SingleTypeNameToSchema<
-  T extends SingleTypeSchema['type']
-> = T extends 'string'
-  ? StringSchema
-  : T extends 'number'
-  ? NumberSchema
-  : T extends 'integer'
-  ? IntegerSchema
-  : T extends 'boolean'
-  ? BooleanSchema
-  : T extends 'object'
-  ? ObjectSchema<any>
-  : T extends 'array'
-  ? ArraySchema<any>
-  : T extends 'null'
-  ? NullSchema
-  : never;
+    TODO: Can @types/json-schema be just used directly? Not doing that for now as having a local
+          copy makes the development easier for now.
+  */
 
-type SingleTypeSchemaTypeToType<
-  T extends SingleTypeSchema['type']
-> = T extends 'string'
-  ? string
-  : T extends 'number'
-  ? number
-  : T extends 'integer'
-  ? number
-  : T extends 'boolean'
-  ? boolean
-  : T extends 'object'
-  ? object
-  : T extends 'array'
-  ? []
-  : T extends 'null'
-  ? null
-  : never;
+  $id?: string;
+  $ref?: string;
+  $schema?: JsonSchemaVersion;
+  $comment?: string;
 
-type SingleTypeSchemaToType<T> = T extends ObjectSchema<any>
-  ? ApplyRequired<
-      {
-        [K in keyof T['properties']]: JsonSchemaToInstanceType<
-          T['properties'][K]
-        >
-      },
-      T
-    >
-  : T extends StringSchema
-  ? string
-  : T extends NumberSchema
-  ? number
-  : never;
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.1
+   */
+  // enum?: JsonSchemaTypeName[];
+  // const?: JsonSchemaTypeName;
 
-type ApplyRequired<T, TDef> = TDef extends ObjectSchema
-  ? Pick<T, Extract<keyof T, RequiredProperties<TDef>>> &
-      Partial<Pick<T, Exclude<keyof T, RequiredProperties<TDef>>>>
-  : T;
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.2
+   */
+  multipleOf?: number;
+  maximum?: number;
+  exclusiveMaximum?: number;
+  minimum?: number;
+  exclusiveMinimum?: number;
 
-type RequiredProperties<TDef extends ObjectSchema<any>> = {
-  [P in keyof TDef['properties']]: P extends ArrayElement<TDef['required']>
-    ? P
-    : undefined extends TDef['properties'][P]['default']
-    ? never
-    : P
-}[keyof TDef['properties']];
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.3
+   */
+  maxLength?: number;
+  minLength?: number;
+  pattern?: string;
 
-type ArrayElement<ArrayType> = ArrayType extends (infer ElementType)[]
-  ? ElementType
-  : never;
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.4
+   */
+  // items?: JsonSchemaDefinition | JsonSchemaDefinition[];
+  // additionalItems?: JsonSchemaDefinition;
+  maxItems?: number;
+  minItems?: number;
+  uniqueItems?: boolean;
+  // contains?: JsonSchema;
+
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.5
+   */
+  maxProperties?: number;
+  minProperties?: number;
+  // required?: string[];
+  // properties?: {
+  //   [key: string]: JsonSchemaDefinition;
+  // };
+  // patternProperties?: {
+  //   [key: string]: JsonSchemaDefinition;
+  // };
+  // additionalProperties?: JsonSchemaDefinition;
+  dependencies?: {
+    [key: string]: JsonSchemaDefinition | string[];
+  };
+  propertyNames?: JsonSchemaDefinition;
+
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.6
+   */
+  // if?: JsonSchemaDefinition;
+  // then?: JsonSchemaDefinition;
+  // else?: JsonSchemaDefinition;
+
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.7
+   */
+  // allOf?: JsonSchemaDefinition[];
+  // anyOf?: JsonSchemaDefinition[];
+  // oneOf?: JsonSchemaDefinition[];
+  // not?: JsonSchemaDefinition;
+
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-7
+   */
+  format?: string;
+
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-8
+   */
+  contentMediaType?: string;
+  contentEncoding?: string;
+
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-9
+   */
+  // definitions?: {
+  //   [key: string]: JsonSchemaDefinition;
+  // };
+
+  /**
+   * @see https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-10
+   */
+  title?: string;
+  description?: string;
+  default?: JsonSchemaType;
+  readOnly?: boolean;
+  writeOnly?: boolean;
+  examples?: JsonSchemaType;
+}
