@@ -31,6 +31,7 @@ export interface JsonSchema<
 > {
   // TODO: type isn't strictly required, if it's not specified we can fallback to unknown
   type: JsonSchemaTypeName | JsonSchemaTypeName[];
+
   properties?: TObjectProperties;
   required?: (keyof TObjectProperties)[];
 
@@ -83,7 +84,6 @@ export interface JsonSchema<
    */
   maxProperties?: number;
   minProperties?: number;
-  // required?: string[];
   // properties?: {
   //   [key: string]: JsonSchemaDefinition;
   // };
