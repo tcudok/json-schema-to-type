@@ -5,11 +5,11 @@ A compile-time TypeScript library that can generate the type of a JSON instance 
 ## Installation
 
 ```bash
-npm install -D typed-schema
+npm install -D json-schema-to-type
 ```
 
 ```bash
-yarn -D add typed-schema
+yarn -D add json-schema-to-type
 ```
 
 ## Usage
