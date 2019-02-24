@@ -10,12 +10,12 @@ import {
 } from './typeSchemas';
 
 export type JsonSchemaToType<T extends JsonSchema> = T extends MultiTypeSchema
-  ? SingleTypeSchemaTypeNameToType<MultiTypeSchemaTypeNames<T>>
+  ? TypeNameToType<MultiTypeSchemaTypeNames<T>>
   : T extends SingleTypeSchema
-  ? SingleTypeSchemaToType<T>
+  ? SchemaToType<T>
   : never;
 
-type SingleTypeSchema =
+export type SingleTypeSchema =
   | StringSchema
   | NumberSchema
   | IntegerSchema
@@ -28,12 +28,11 @@ export type MultiTypeSchema<
   T extends SingleTypeSchema['type'] = SingleTypeSchema['type']
 > = {
   type: T[];
-  default?: SingleTypeSchemaTypeNameToType<T>;
-  examples?: SingleTypeSchemaTypeNameToType<T>;
+  default?: TypeNameToType<T>;
 } & UnionToIntersection<StripTypeSpecificProperties<TypeNameToSchema<T>>>;
 
 type StripTypeSpecificProperties<T> = T extends SingleTypeSchema
-  ? Pick<T, Exclude<keyof T, 'type' | 'default' | 'examples'>>
+  ? Pick<T, Exclude<keyof T, 'type' | 'default'>>
   : never;
 
 // https://stackoverflow.com/a/50375286/1515409
@@ -63,9 +62,7 @@ type TypeNameToSchema<T extends SingleTypeSchema['type']> = T extends 'string'
   ? NullSchema
   : never;
 
-type SingleTypeSchemaTypeNameToType<
-  T extends SingleTypeSchema['type']
-> = T extends 'string'
+type TypeNameToType<T extends SingleTypeSchema['type']> = T extends 'string'
   ? string
   : T extends 'number'
   ? number
@@ -81,7 +78,7 @@ type SingleTypeSchemaTypeNameToType<
   ? null
   : never;
 
-type SingleTypeSchemaToType<T> = T extends StringSchema
+type SchemaToType<T> = T extends StringSchema
   ? string
   : T extends NumberSchema
   ? number
@@ -95,25 +92,23 @@ type SingleTypeSchemaToType<T> = T extends StringSchema
   ? null
   : never;
 
-type ObjectSchemaToType<T> = T extends ObjectSchema<any>
-  ? ApplyRequired<
-      { [K in keyof T['properties']]: JsonSchemaToType<T['properties'][K]> },
-      T
-    >
-  : never;
+type ObjectSchemaToType<T extends ObjectSchema<any>> = ApplyRequired<
+  { [K in keyof T['properties']]: JsonSchemaToType<T['properties'][K]> },
+  T
+>;
 
 type ApplyRequired<T, TDef> = TDef extends ObjectSchema
   ? Pick<T, Extract<keyof T, RequiredProperties<TDef>>> &
       Partial<Pick<T, Exclude<keyof T, RequiredProperties<TDef>>>>
   : T;
 
-type RequiredProperties<TDef extends ObjectSchema<any>> = {
-  [P in keyof TDef['properties']]: P extends ArrayElement<TDef['required']>
+type RequiredProperties<T extends ObjectSchema<any>> = {
+  [P in keyof T['properties']]: P extends ArrayElement<T['required']>
     ? P
-    : undefined extends TDef['properties'][P]['default']
+    : undefined extends T['properties'][P]['default']
     ? never
     : P
-}[keyof TDef['properties']];
+}[keyof T['properties']];
 
 type ArrayElement<ArrayType> = ArrayType extends (infer ElementType)[]
   ? ElementType
