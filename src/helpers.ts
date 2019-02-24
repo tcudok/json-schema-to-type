@@ -1,5 +1,4 @@
-import { JsonSchema } from './schema';
-import { ObjectSchemaProperties } from './typeSchemas';
+import { JsonSchema, ObjectSchemaProperties } from './schema';
 
 export const asJsonSchema = <
   T extends JsonSchema<TProps>,

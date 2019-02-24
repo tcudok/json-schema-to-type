@@ -1,8 +1,8 @@
+import Ajv, { ErrorObject } from 'ajv';
 import { assert, IsExactType } from 'conditional-type-checks';
+import { asJsonSchema } from './helpers';
 import { JsonSchema } from './schema';
 import { JsonSchemaToType, MultiTypeSchema } from './toType';
-import Ajv, { ErrorObject } from 'ajv';
-import { asJsonSchema } from './helpers';
 
 it('compiles with simple schemas', () => {
   const schema = asJsonSchema({

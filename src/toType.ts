@@ -1,13 +1,13 @@
-import { JsonSchema } from './schema';
 import {
-  StringSchema,
-  NumberSchema,
-  IntegerSchema,
-  BooleanSchema,
-  ObjectSchema,
   ArraySchema,
+  BooleanSchema,
+  IntegerSchema,
+  JsonSchema,
   NullSchema,
-} from './typeSchemas';
+  NumberSchema,
+  ObjectSchema,
+  StringSchema,
+} from './schema';
 
 export type JsonSchemaToType<T extends JsonSchema> = T extends MultiTypeSchema
   ? TypeNameToType<MultiTypeSchemaTypeNames<T>>
