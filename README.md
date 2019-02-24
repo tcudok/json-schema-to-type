@@ -55,15 +55,22 @@ type Type = {
 
 The support for many JSON Schema features is still missing. Things to implement:
 
-- [ ] `array` type
+- [x] `array` type
+  - [x] single schema for all items
+    - [ ] full support for `array` schemas as item schemas (currently resolves to [][])
+    - [ ] full support for `object` schemas as item schemas (currently resolves to object[])
+  - [ ] multiple items schemas (tuples)
+  - [ ] `additionalItems` property
+  - [ ] `contains` property
+- [x] `object` type
+  - [x] required properties
+  - [ ] `patternProperties` property
+  - [ ] `additionalProperties` property
+- [x] multi-type schemas
+  - [ ] full support for `array` schemas in multi-type schemas (currently resolves to [])
+  - [ ] full support for `object` schemas in multi-type schemas (currently resolves to object)
 - [ ] `enum` property
 - [ ] `const` property
-- [ ] `definitions` property
+- [ ] `definitions` property (investiate `$ref` support)
 - [ ] `if`, `then`, `else` properties
 - [ ] `allOf`, `anyOf`, `oneOf`, `not` properties
-- [ ] strongly typed `default` property for objects
-- [ ] strongly typed `examples` for objects
-- [ ] `patternProperties` property for objects
-- [ ] `dependencies` property for objects
-- [ ] proper support for `additionalProperties` property for objects
-- [ ] proper typing for `propertyNames` property for objects

@@ -155,7 +155,88 @@ describe('object schema', () => {
   });
 });
 
-describe('array schema', () => {});
+describe('array schema', () => {
+  test('no items schema', () => {
+    const schema = asJsonSchema({
+      type: 'array',
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    assert<IsExactType<Data, unknown[]>>(true);
+  });
+
+  test('with items of type string', () => {
+    const schema = asJsonSchema({
+      type: 'array',
+      items: { type: 'string' },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    assert<IsExactType<Data, string[]>>(true);
+  });
+
+  test('with items of type object with no properties', () => {
+    const schema = asJsonSchema({
+      type: 'array',
+      items: { type: 'object' },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    assert<IsExactType<Data, object[]>>(true);
+  });
+
+  test('with items of type object with properties', () => {
+    const schema = asJsonSchema({
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { foo: { type: 'string' }, bar: { type: 'number' } },
+      },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    // with full support should resolve to ({ foo: string?, bar?: number; })[]
+    assert<IsExactType<Data, object[]>>(true);
+  });
+
+  test('with items of type array with no item type', () => {
+    const schema = asJsonSchema({
+      type: 'array',
+      items: { type: 'array' },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    assert<IsExactType<Data, [][]>>(true);
+  });
+
+  test('with items of type array with number item type', () => {
+    const schema = asJsonSchema({
+      type: 'array',
+      items: { type: 'array', items: { type: 'number' } },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    // with full support should resolve to number[][]
+    assert<IsExactType<Data, [][]>>(true);
+  });
+
+  test('with items of multi-type item type', () => {
+    const schema = asJsonSchema({
+      type: 'array',
+      items: { type: ['number', 'string'] },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    assert<IsExactType<Data, (string | number)[]>>(true);
+  });
+});
 
 test('null schema', () => {
   const schema = asJsonSchema({
@@ -167,14 +248,43 @@ test('null schema', () => {
   assert<IsExactType<Data, null>>(true);
 });
 
-test('multi-type schema', () => {
-  const schema = {
-    type: ['string', 'number'] as ['string', 'number'],
-  };
+describe('multi-type schema', () => {
+  test('with simple types', () => {
+    const schema = asJsonSchema({
+      type: ['string', 'number', 'integer', 'boolean', 'null'],
+    });
 
-  type Data = JsonSchemaToType<typeof schema>;
+    type Data = JsonSchemaToType<typeof schema>;
 
-  assert<IsExactType<Data, string | number>>(true);
+    assert<IsExactType<Data, string | number | boolean | null>>(true);
+  });
+
+  test('with array as one of types', () => {
+    const schema = asJsonSchema({
+      type: ['array', 'number'],
+      items: { type: 'string' },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    // with full support should be number | string[]
+    assert<IsExactType<Data, number | []>>(true);
+  });
+
+  test('with object as one of types', () => {
+    const schema = asJsonSchema({
+      type: ['object', 'number'],
+      properties: {
+        foo: { type: 'string' },
+        bar: { type: 'number' },
+      },
+    });
+
+    type Data = JsonSchemaToType<typeof schema>;
+
+    // with full support should be number | { foo?: string, bar?: number }[]
+    assert<IsExactType<Data, number | object>>(true);
+  });
 });
 
 test('works with AJV', () => {
@@ -197,6 +307,11 @@ test('works with AJV', () => {
             type: ['number', 'string'],
             default: 'test',
           },
+          quux: {
+            type: 'array',
+            items: { type: 'string' },
+            default: ['ene', 'due'],
+          },
         },
       },
     },
@@ -207,9 +322,25 @@ test('works with AJV', () => {
   assert<
     IsExactType<
       Data,
-      { foo: string; bar: { baz: number; qux: number | string } }
+      {
+        foo: string;
+        bar: { baz: number; qux: number | string; quux: string[] };
+      }
     >
   >(true);
+
+  const data: any = {};
+
+  const result = validate(schema, data);
+
+  expect(result.success).toBe(true);
+
+  if (result.success) {
+    expect(result.data.foo).toBe('test');
+    expect(result.data.bar.baz).toBe(5);
+    expect(result.data.bar.qux).toBe('test');
+    expect(result.data.bar.quux).toEqual(['ene', 'due']);
+  }
 
   type ValidationResult<T extends JsonSchema> =
     | { success: true; data: JsonSchemaToType<T> }
@@ -228,17 +359,5 @@ test('works with AJV', () => {
     }
 
     return { success: true, data: data as JsonSchemaToType<T> };
-  }
-
-  const data: any = {};
-
-  const result = validate(schema, data);
-
-  expect(result.success).toBe(true);
-
-  if (result.success) {
-    expect(result.data.foo).toBe('test');
-    expect(result.data.bar.baz).toBe(5);
-    expect(result.data.bar.qux).toBe('test');
   }
 });

@@ -88,6 +88,20 @@ type SchemaToType<T> = T extends StringSchema
   ? boolean
   : T extends ObjectSchema<any>
   ? ObjectSchemaToType<T>
+  : T extends ArraySchema<any>
+  ? ArraySchemaToType<T>
+  : T extends NullSchema
+  ? null
+  : never;
+
+type ShallowSchemaToType<T> = T extends StringSchema
+  ? string
+  : T extends NumberSchema
+  ? number
+  : T extends IntegerSchema
+  ? number
+  : T extends BooleanSchema
+  ? boolean
   : T extends NullSchema
   ? null
   : never;
@@ -96,6 +110,14 @@ type ObjectSchemaToType<T extends ObjectSchema<any>> = ApplyRequired<
   { [K in keyof T['properties']]: JsonSchemaToType<T['properties'][K]> },
   T
 >;
+
+type ArraySchemaToType<T> = T extends ArraySchema<infer Item>
+  ? Item extends SingleTypeSchema
+    ? TypeNameToType<Item['type']>[]
+    : Item extends MultiTypeSchema<any>
+    ? TypeNameToType<MultiTypeSchemaTypeNames<Item>>[]
+    : unknown[]
+  : never;
 
 type ApplyRequired<T, TDef> = TDef extends ObjectSchema
   ? Pick<T, Extract<keyof T, RequiredProperties<TDef>>> &

@@ -21,17 +21,21 @@ export type JsonSchemaVersion = string;
 
 export type JsonSchemaDefinition = JsonSchema | boolean;
 
+export interface ArraySchemaItem extends JsonSchema {}
+
 // Based on https://github.com/DefinitelyTyped/DefinitelyTyped/blob/11d758a1193c3bd924f9f4b0b466f6e4d40d1a2f/types/json-schema/index.d.ts#L510,
 // with slight modifications to allow to capture the needed type information.
 export interface JsonSchema<
   TObjectProperties extends ObjectSchemaProperties = ObjectSchemaProperties,
-  TArrayItems extends ArraySchemaItems = ArraySchemaItems
+  TArrayItems extends ArraySchemaItem = ArraySchemaItem
 > {
   // TODO: type isn't strictly required, if it's not specified we can fallback to unknown
   type: JsonSchemaTypeName | JsonSchemaTypeName[];
 
   properties?: TObjectProperties;
   required?: (keyof TObjectProperties)[];
+
+  items?: TArrayItems;
 
   /*
     Properties that don't affect the instance type, copied directly from @types/json-schema
@@ -167,14 +171,14 @@ export type ObjectSchemaProperties = {
 };
 
 // https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-6.4
-export type ArraySchema<TItems extends ArraySchemaItems = ArraySchemaItems> = {
+export type ArraySchema<TItems extends JsonSchema> = {
   type: 'array';
-  default?: TItems;
 
-  items?: TItems; // TODO: allow a single JsonSchema
+  items?: TItems; // TODO: tuple support
 
-  additionalItems?: boolean; // JsonSchema | boolean;
-  uniqueItems?: boolean;
+  // TODO: these might affect the final type, investigate:
+  // additionalItems?: boolean; // JsonSchema | boolean;
+  // uniqueItems?: boolean;
   // contains?: JsonSchema;
 };
 
