@@ -2,7 +2,8 @@ src
 node_modules
 .gitignore
 jest.config.js
-tsconfig.js
+tsconfig.json
 yarn.lock
+README.md
 dist/*.spec.js
 dist/*.map
