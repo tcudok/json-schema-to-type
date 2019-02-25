@@ -19,11 +19,12 @@ yarn -D add json-schema-to-type
 ```typescript
 import { JsonSchemaToType, asJsonSchema } from 'json-schema-to-type';
 
-// `asJsonSchema` casts the type to a type that extends the `JsonSchema` schema, while preserving the granular type
-// information.
+// `asJsonSchema` casts the type to a type that extends the `JsonSchema` schema, 
+// while preserving the granular type information.
 //
-// Without it, all the type names would have to be manually cast to string literals (`type: 'string' as 'string'`).
-// Shouldn't be needed when `const` assertions land in TS 3.4: https://github.com/Microsoft/TypeScript/pull/29510
+// Without it, all the type names would have to be manually cast to string 
+// literals (`type: 'string' as 'string'`). Shouldn't be needed when `const` 
+// assertions land in TS 3.4: https://github.com/Microsoft/TypeScript/pull/29510
 const schema = asJsonSchema({
   type: 'object',
   properties: {
@@ -58,6 +59,8 @@ const schema = asJsonSchema({
   },
   required: ['firstName', 'lastName', 'phoneNumbers'],
 });
+
+type Type = JsonSchemaToType<typeof schema>;
 ```
 
 The resulting type of `Type` will be equivalent to:
