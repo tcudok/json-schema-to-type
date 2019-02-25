@@ -75,7 +75,7 @@ type Type = {
     addressLine2?: string;
     postCode: string;
   };
-  phoneNumers: (string | number)[];
+  phoneNumbers: (string | number)[];
 };
 ```
 
