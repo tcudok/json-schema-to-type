@@ -9,10 +9,18 @@ import {
   StringSchema,
 } from './schema';
 
-export type JsonSchemaToType<T extends JsonSchema> = T extends MultiTypeSchema
-  ? TypeNameToType<MultiTypeSchemaTypeNames<T>>
-  : T extends SingleTypeSchema
-  ? SchemaToType<T>
+export type JsonSchemaToType<T extends JsonSchema> = {
+  0: JsonSchemaToType<MultiTypeSchemaToSingleTypeSchemas<T>>;
+  1: SchemaToType<T>;
+  2: never;
+}[T extends MultiTypeSchema ? 0 : T extends SingleTypeSchema ? 1 : 2];
+
+type MultiTypeSchemaToSingleTypeSchemas<T> = T extends MultiTypeSchema<
+  infer Schemas
+>
+  ? Schemas extends SingleTypeSchema['type']
+    ? { type: Schemas } & Pick<T, Exclude<keyof T, 'type' | 'default'>>
+    : never
   : never;
 
 export type SingleTypeSchema =
@@ -40,10 +48,6 @@ type UnionToIntersection<U> = (U extends any
   ? (k: U) => void
   : never) extends ((k: infer I) => void)
   ? I
-  : never;
-
-type MultiTypeSchemaTypeNames<T> = T extends MultiTypeSchema<infer Types>
-  ? Types
   : never;
 
 type TypeNameToSchema<T extends SingleTypeSchema['type']> = T extends 'string'
@@ -90,18 +94,6 @@ type SchemaToType<T> = T extends StringSchema
   ? ObjectSchemaToType<T>
   : T extends ArraySchema<any>
   ? ArraySchemaToType<T>
-  : T extends NullSchema
-  ? null
-  : never;
-
-type ShallowSchemaToType<T> = T extends StringSchema
-  ? string
-  : T extends NumberSchema
-  ? number
-  : T extends IntegerSchema
-  ? number
-  : T extends BooleanSchema
-  ? boolean
   : T extends NullSchema
   ? null
   : never;

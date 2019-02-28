@@ -266,8 +266,7 @@ describe('multi-type schema', () => {
 
     type Data = JsonSchemaToType<typeof schema>;
 
-    // with full support should be number | string[]
-    assert<IsExactType<Data, number | []>>(true);
+    assert<IsExactType<Data, number | string[]>>(true);
   });
 
   test('with object as one of types', () => {
@@ -281,8 +280,7 @@ describe('multi-type schema', () => {
 
     type Data = JsonSchemaToType<typeof schema>;
 
-    // with full support should be number | { foo?: string, bar?: number }[]
-    assert<IsExactType<Data, number | object>>(true);
+    assert<IsExactType<Data, number | { foo?: string; bar?: number }>>(true);
   });
 });
 
