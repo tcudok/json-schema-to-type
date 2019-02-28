@@ -36,51 +36,7 @@ export type MultiTypeSchema<
   T extends SingleTypeSchema['type'] = SingleTypeSchema['type']
 > = {
   type: T[];
-  default?: TypeNameToType<T>;
-} & UnionToIntersection<StripTypeSpecificProperties<TypeNameToSchema<T>>>;
-
-type StripTypeSpecificProperties<T> = T extends SingleTypeSchema
-  ? Pick<T, Exclude<keyof T, 'type' | 'default'>>
-  : never;
-
-// https://stackoverflow.com/a/50375286/1515409
-type UnionToIntersection<U> = (U extends any
-  ? (k: U) => void
-  : never) extends ((k: infer I) => void)
-  ? I
-  : never;
-
-type TypeNameToSchema<T extends SingleTypeSchema['type']> = T extends 'string'
-  ? StringSchema
-  : T extends 'number'
-  ? NumberSchema
-  : T extends 'integer'
-  ? IntegerSchema
-  : T extends 'boolean'
-  ? BooleanSchema
-  : T extends 'object'
-  ? ObjectSchema<any>
-  : T extends 'array'
-  ? ArraySchema<any>
-  : T extends 'null'
-  ? NullSchema
-  : never;
-
-type TypeNameToType<T extends SingleTypeSchema['type']> = T extends 'string'
-  ? string
-  : T extends 'number'
-  ? number
-  : T extends 'integer'
-  ? number
-  : T extends 'boolean'
-  ? boolean
-  : T extends 'object'
-  ? object
-  : T extends 'array'
-  ? []
-  : T extends 'null'
-  ? null
-  : never;
+};
 
 type SchemaToType<T> = T extends StringSchema
   ? string
