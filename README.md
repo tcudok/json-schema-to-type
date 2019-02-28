@@ -54,7 +54,14 @@ const schema = asJsonSchema({
     },
     phoneNumbers: {
       type: 'array',
-      items: { type: ['string', 'integer'] },
+      items: {
+        type: ['string', 'object'],
+        properties: {
+          areaCode: { type: 'number' },
+          localNumber: { type: 'number' },
+        },
+        required: ['localNumber'],
+      },
     },
   },
   required: ['firstName', 'lastName', 'phoneNumbers'],
@@ -75,7 +82,7 @@ type Type = {
     addressLine2?: string;
     postCode: string;
   };
-  phoneNumbers: (string | number)[];
+  phoneNumbers: (string | { areaCode?: number; localNumber: number })[];
 };
 ```
 

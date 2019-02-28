@@ -358,3 +358,63 @@ test('works with AJV', () => {
     return { success: true, data: data as JsonSchemaToType<T> };
   }
 });
+
+test('README snippet', () => {
+  const schema = asJsonSchema({
+    type: 'object',
+    properties: {
+      firstName: {
+        type: 'string',
+      },
+      lastName: {
+        type: 'string',
+      },
+      age: {
+        type: 'integer',
+      },
+      address: {
+        type: 'object',
+        properties: {
+          addressLine1: {
+            type: 'string',
+          },
+          addressLine2: {
+            type: 'string',
+          },
+          postCode: {
+            type: 'string',
+          },
+        },
+        required: ['addressLine1', 'postCode'] as ['addressLine1', 'postCode'], // TODO: bug
+      },
+      phoneNumbers: {
+        type: 'array',
+        items: {
+          type: ['string', 'object'],
+          properties: {
+            areaCode: { type: 'number' },
+            localNumber: { type: 'number' },
+          },
+          required: ['localNumber'] as ['localNumber'], // TODO: bug
+        },
+      },
+    },
+    required: ['firstName', 'lastName', 'phoneNumbers'],
+  });
+
+  type Actual = JsonSchemaToType<typeof schema>;
+
+  type Expected = {
+    firstName: string;
+    lastName: string;
+    age?: number;
+    address?: {
+      addressLine1: string;
+      addressLine2?: string;
+      postCode: string;
+    };
+    phoneNumbers: (string | { areaCode?: number; localNumber: number })[];
+  };
+
+  assert<IsExactType<Actual, Expected>>(true);
+});
