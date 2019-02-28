@@ -194,13 +194,13 @@ describe('array schema', () => {
       items: {
         type: 'object',
         properties: { foo: { type: 'string' }, bar: { type: 'number' } },
+        required: ['foo'] as ['foo'], // TODO: this shouldn't be necessary...
       },
     });
 
     type Data = JsonSchemaToType<typeof schema>;
 
-    // with full support should resolve to ({ foo: string?, bar?: number; })[]
-    assert<IsExactType<Data, object[]>>(true);
+    assert<IsExactType<Data, ({ foo: string; bar?: number })[]>>(true);
   });
 
   test('with items of type array with no item type', () => {
@@ -211,7 +211,7 @@ describe('array schema', () => {
 
     type Data = JsonSchemaToType<typeof schema>;
 
-    assert<IsExactType<Data, [][]>>(true);
+    assert<IsExactType<Data, unknown[][]>>(true);
   });
 
   test('with items of type array with number item type', () => {
@@ -222,8 +222,7 @@ describe('array schema', () => {
 
     type Data = JsonSchemaToType<typeof schema>;
 
-    // with full support should resolve to number[][]
-    assert<IsExactType<Data, [][]>>(true);
+    assert<IsExactType<Data, number[][]>>(true);
   });
 
   test('with items of multi-type item type', () => {

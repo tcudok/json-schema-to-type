@@ -85,8 +85,8 @@ The support for many JSON Schema features is still missing. Things to implement:
 
 - [x] `array` type
   - [x] single schema for all items
-    - [ ] full support for `array` schemas as item schemas (currently resolves to [][])
-    - [ ] full support for `object` schemas as item schemas (currently resolves to object[])
+    - [x] full support for `array` schemas as item schemas (currently resolves to [][])
+    - [x] full support for `object` schemas as item schemas (currently resolves to object[])
   - [ ] multiple items schemas (tuples)
   - [ ] `additionalItems` property
   - [ ] `contains` property

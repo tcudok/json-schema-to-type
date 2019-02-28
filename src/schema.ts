@@ -21,13 +21,13 @@ export type JsonSchemaVersion = string;
 
 export type JsonSchemaDefinition = JsonSchema | boolean;
 
-export interface ArraySchemaItem extends JsonSchema {}
+export interface ArraySchemaItemsSchema extends JsonSchema {}
 
 // Based on https://github.com/DefinitelyTyped/DefinitelyTyped/blob/11d758a1193c3bd924f9f4b0b466f6e4d40d1a2f/types/json-schema/index.d.ts#L510,
 // with slight modifications to allow to capture the needed type information.
 export interface JsonSchema<
   TObjectProperties extends ObjectSchemaProperties = ObjectSchemaProperties,
-  TArrayItems extends ArraySchemaItem = ArraySchemaItem
+  TArrayItems extends ArraySchemaItemsSchema = ArraySchemaItemsSchema
 > {
   // TODO: type isn't strictly required, if it's not specified we can fallback to unknown
   type: JsonSchemaTypeName | JsonSchemaTypeName[];

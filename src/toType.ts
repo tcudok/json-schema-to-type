@@ -111,12 +111,11 @@ type ObjectSchemaToType<T extends ObjectSchema<any>> = ApplyRequired<
   T
 >;
 
-type ArraySchemaToType<T> = T extends ArraySchema<infer Item>
-  ? Item extends SingleTypeSchema
-    ? TypeNameToType<Item['type']>[]
-    : Item extends MultiTypeSchema<any>
-    ? TypeNameToType<MultiTypeSchemaTypeNames<Item>>[]
-    : unknown[]
+type ArraySchemaToType<T> = T extends ArraySchema<infer ItemsSchema>
+  ? {
+      0: JsonSchemaToType<ItemsSchema>[];
+      1: unknown[];
+    }[ItemsSchema extends SingleTypeSchema | MultiTypeSchema<any> ? 0 : 1]
   : never;
 
 type ApplyRequired<T, TDef> = TDef extends ObjectSchema
