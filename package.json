@@ -15,7 +15,10 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "prepublish": "yarn build"
+    "release": "yarn build && yarn publish"
+  },
+  "peerDependencies": {
+    "typescript": "^3.4"
   },
   "devDependencies": {
     "@types/jest": "^24.0.6",
@@ -23,6 +26,6 @@
     "conditional-type-checks": "^0.6.0",
     "jest": "^24.1.0",
     "ts-jest": "^24.0.0",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.4.0-dev.20190228"
   }
 }

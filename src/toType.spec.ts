@@ -1,13 +1,11 @@
 import Ajv, { ErrorObject } from 'ajv';
 import { assert, IsExactType } from 'conditional-type-checks';
-import { asJsonSchema } from './helpers';
-import { JsonSchema } from './schema';
 import { JsonSchemaToType } from './toType';
 
 test('string schema', () => {
-  const schema = asJsonSchema({
+  const schema = {
     type: 'string',
-  });
+  } as const;
 
   type Data = JsonSchemaToType<typeof schema>;
 
@@ -15,9 +13,9 @@ test('string schema', () => {
 });
 
 test('number schema', () => {
-  const schema = asJsonSchema({
+  const schema = {
     type: 'number',
-  });
+  } as const;
 
   type Data = JsonSchemaToType<typeof schema>;
 
@@ -25,9 +23,9 @@ test('number schema', () => {
 });
 
 test('integer schema', () => {
-  const schema = asJsonSchema({
+  const schema = {
     type: 'integer',
-  });
+  } as const;
 
   type Data = JsonSchemaToType<typeof schema>;
 
@@ -35,9 +33,9 @@ test('integer schema', () => {
 });
 
 test('boolean schema', () => {
-  const schema = asJsonSchema({
+  const schema = {
     type: 'boolean',
-  });
+  } as const;
 
   type Data = JsonSchemaToType<typeof schema>;
 
@@ -46,9 +44,9 @@ test('boolean schema', () => {
 
 describe('object schema', () => {
   test('empty', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'object',
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -56,7 +54,7 @@ describe('object schema', () => {
   });
 
   test('properties', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'object',
       properties: {
         foo: {
@@ -66,7 +64,7 @@ describe('object schema', () => {
           type: 'number',
         },
       },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -74,7 +72,7 @@ describe('object schema', () => {
   });
 
   test('required properties', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'object',
       properties: {
         foo: {
@@ -85,7 +83,7 @@ describe('object schema', () => {
         },
       },
       required: ['foo'],
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -93,7 +91,7 @@ describe('object schema', () => {
   });
 
   test('nested properties', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'object',
       properties: {
         port: {
@@ -110,7 +108,7 @@ describe('object schema', () => {
         },
       },
       required: ['port'],
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -120,7 +118,7 @@ describe('object schema', () => {
   });
 
   test('default values', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'object',
       properties: {
         foo: {
@@ -142,7 +140,7 @@ describe('object schema', () => {
           },
         },
       },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -157,9 +155,9 @@ describe('object schema', () => {
 
 describe('array schema', () => {
   test('no items schema', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'array',
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -167,10 +165,10 @@ describe('array schema', () => {
   });
 
   test('with items of type string', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'array',
       items: { type: 'string' },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -178,10 +176,10 @@ describe('array schema', () => {
   });
 
   test('with items of type object with no properties', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'array',
       items: { type: 'object' },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -189,14 +187,14 @@ describe('array schema', () => {
   });
 
   test('with items of type object with properties', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'array',
       items: {
         type: 'object',
         properties: { foo: { type: 'string' }, bar: { type: 'number' } },
         required: ['foo'] as ['foo'], // TODO: this shouldn't be necessary...
       },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -204,10 +202,10 @@ describe('array schema', () => {
   });
 
   test('with items of type array with no item type', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'array',
       items: { type: 'array' },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -215,10 +213,10 @@ describe('array schema', () => {
   });
 
   test('with items of type array with number item type', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'array',
       items: { type: 'array', items: { type: 'number' } },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -226,10 +224,10 @@ describe('array schema', () => {
   });
 
   test('with items of multi-type item type', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: 'array',
       items: { type: ['number', 'string'] },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -238,9 +236,9 @@ describe('array schema', () => {
 });
 
 test('null schema', () => {
-  const schema = asJsonSchema({
+  const schema = {
     type: 'null',
-  });
+  } as const;
 
   type Data = JsonSchemaToType<typeof schema>;
 
@@ -249,9 +247,9 @@ test('null schema', () => {
 
 describe('multi-type schema', () => {
   test('with simple types', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: ['string', 'number', 'integer', 'boolean', 'null'],
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -259,10 +257,10 @@ describe('multi-type schema', () => {
   });
 
   test('with array as one of types', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: ['array', 'number'],
       items: { type: 'string' },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -270,13 +268,13 @@ describe('multi-type schema', () => {
   });
 
   test('with object as one of types', () => {
-    const schema = asJsonSchema({
+    const schema = {
       type: ['object', 'number'],
       properties: {
         foo: { type: 'string' },
         bar: { type: 'number' },
       },
-    });
+    } as const;
 
     type Data = JsonSchemaToType<typeof schema>;
 
@@ -285,7 +283,7 @@ describe('multi-type schema', () => {
 });
 
 test('works with AJV', () => {
-  const schema = asJsonSchema({
+  const schema = {
     type: 'object',
     properties: {
       foo: {
@@ -312,7 +310,7 @@ test('works with AJV', () => {
         },
       },
     },
-  });
+  } as const;
 
   type Data = JsonSchemaToType<typeof schema>;
 
@@ -339,11 +337,11 @@ test('works with AJV', () => {
     expect(result.data.bar.quux).toEqual(['ene', 'due']);
   }
 
-  type ValidationResult<T extends JsonSchema> =
+  type ValidationResult<T> =
     | { success: true; data: JsonSchemaToType<T> }
     | { success: false; errors: ErrorObject[] };
 
-  function validate<T extends JsonSchema>(
+  function validate<T extends object>(
     schema: T,
     data: unknown,
   ): ValidationResult<T> {
@@ -360,7 +358,7 @@ test('works with AJV', () => {
 });
 
 test('README snippet', () => {
-  const schema = asJsonSchema({
+  const schema = {
     type: 'object',
     properties: {
       firstName: {
@@ -385,7 +383,7 @@ test('README snippet', () => {
             type: 'string',
           },
         },
-        required: ['addressLine1', 'postCode'] as ['addressLine1', 'postCode'], // TODO: bug
+        required: ['addressLine1', 'postCode'],
       },
       phoneNumbers: {
         type: 'array',
@@ -395,12 +393,12 @@ test('README snippet', () => {
             areaCode: { type: 'number' },
             localNumber: { type: 'number' },
           },
-          required: ['localNumber'] as ['localNumber'], // TODO: bug
+          required: ['localNumber'],
         },
       },
     },
     required: ['firstName', 'lastName', 'phoneNumbers'],
-  });
+  } as const;
 
   type Actual = JsonSchemaToType<typeof schema>;
 

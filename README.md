@@ -4,6 +4,8 @@
 
 A compile-time TypeScript library that can generate the type of a JSON instance from a JSON Schema object type.
 
+Requires TypeScript >=3.4
+
 ## Installation
 
 ```bash
@@ -17,15 +19,9 @@ yarn -D add json-schema-to-type
 ## Usage
 
 ```typescript
-import { JsonSchemaToType, asJsonSchema } from 'json-schema-to-type';
+import { JsonSchemaToType } from 'json-schema-to-type';
 
-// `asJsonSchema` casts the type to a type that extends the `JsonSchema` schema,
-// while preserving the granular type information.
-//
-// Without it, all the type names would have to be manually cast to string
-// literals (`type: 'string' as 'string'`). Shouldn't be needed when `const`
-// assertions land in TS 3.4: https://github.com/Microsoft/TypeScript/pull/29510
-const schema = asJsonSchema({
+const schema = {
   type: 'object',
   properties: {
     firstName: {
@@ -65,7 +61,7 @@ const schema = asJsonSchema({
     },
   },
   required: ['firstName', 'lastName', 'phoneNumbers'],
-});
+} as const;
 
 type Type = JsonSchemaToType<typeof schema>;
 ```

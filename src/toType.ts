@@ -2,14 +2,13 @@ import {
   ArraySchema,
   BooleanSchema,
   IntegerSchema,
-  JsonSchema,
   NullSchema,
   NumberSchema,
   ObjectSchema,
   StringSchema,
 } from './schema';
 
-export type JsonSchemaToType<T extends JsonSchema> = {
+export type JsonSchemaToType<T> = {
   0: JsonSchemaToType<MultiTypeSchemaToSingleTypeSchemas<T>>;
   1: SchemaToType<T>;
   2: never;
@@ -23,7 +22,7 @@ type MultiTypeSchemaToSingleTypeSchemas<T> = T extends MultiTypeSchema<
     : never
   : never;
 
-export type SingleTypeSchema =
+type SingleTypeSchema =
   | StringSchema
   | NumberSchema
   | IntegerSchema
@@ -32,10 +31,10 @@ export type SingleTypeSchema =
   | ArraySchema<any>
   | NullSchema;
 
-export type MultiTypeSchema<
+type MultiTypeSchema<
   T extends SingleTypeSchema['type'] = SingleTypeSchema['type']
 > = {
-  type: T[];
+  type: readonly T[];
 };
 
 type SchemaToType<T> = T extends StringSchema
@@ -72,13 +71,13 @@ type ApplyRequired<T, TDef> = TDef extends ObjectSchema
   : T;
 
 type RequiredProperties<T extends ObjectSchema<any>> = {
-  [P in keyof T['properties']]: P extends ArrayElement<T['required']>
+  [P in keyof T['properties']]: P extends ElementOf<T['required']>
     ? P
     : undefined extends T['properties'][P]['default']
     ? never
     : P
 }[keyof T['properties']];
 
-type ArrayElement<ArrayType> = ArrayType extends (infer ElementType)[]
-  ? ElementType
-  : never;
+type ElementOf<T> = T extends readonly (infer E)[] ? E : never;
+
+
