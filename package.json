@@ -1,6 +1,6 @@
 {
   "name": "json-schema-to-type",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "author": {
     "name": "Tomasz Cudok",
@@ -14,8 +14,9 @@
   "main": "dist",
   "scripts": {
     "test": "jest",
+    "clean": "rm -rf dist",
     "build": "tsc",
-    "release": "yarn build && yarn publish"
+    "release": "yarn test && yarn build && yarn publish"
   },
   "peerDependencies": {
     "typescript": "^3.4"
