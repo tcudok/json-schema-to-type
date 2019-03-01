@@ -9,10 +9,6 @@
     "sourceMap": false,
 
     "strict": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-
-    "lib": ["dom", "es2015", "es2016", "es2017", "es2018"],
 
     "outDir": "dist",
     "rootDir": "src"
