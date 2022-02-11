@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.6",
-    "ajv": "^6.9.2",
+    "ajv": "^6.12.3",
     "conditional-type-checks": "^0.6.0",
     "jest": "^24.1.0",
     "ts-jest": "^24.0.0",
